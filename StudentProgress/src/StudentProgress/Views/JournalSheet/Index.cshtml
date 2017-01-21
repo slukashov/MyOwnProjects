@@ -1,0 +1,274 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using StudentProgress.Infrastructure.Wrappers
+@using StudentProgress.Authorization.AspNet.Identity.Extensions;
+@using StudentProgress.ViewModels;
+﻿﻿@using System.Threading.Tasks
+
+@inject SignInManegerWrapper SignInManager
+@{
+}
+
+@section Scripts {
+    <environment names="Development">
+        <script src="~/js/controllers/JournalSheetController.js"></script>
+        <script src="~/js/services/JournalSheetService.js"></script>
+        <script src="~/js/DatePicker.js"></script>
+        <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+        <script src="~/lib/angular-busy/angular-busy.js"></script>
+        <script src="~/js/directives/ngReallyDirective.js"></script>
+        <script src="~/lib/uikit/js/uikit.min.js"></script>
+        <script src="~/lib/uikit/js/components/datepicker.js"></script>
+    </environment>
+}
+
+@section Styles{
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/uikit/css/uikit.min.css" />
+        <link rel="stylesheet" href="~/lib/uikit/css/components/datepicker.css"/>
+    </environment>
+}
+
+<form>
+    <div style="margin-top: 15px" ng-controller="JournalSheetController" ng-init="getAllDisciplines()" cg-busy="[getLessonsFromCurrentJournalSheetPromise,getAllDisciplinesPromise,getAllJournalSheetsPromise,getFinalMarksPromise]">
+        <toaster-container></toaster-container>
+        @if ((User.IsInRole("Administrator")) || (User.IsInRole("Professor")))
+        {
+            @if (User.IsInRole("Administrator"))
+             {
+                 <button class="btn btn-info pull-right" data-toggle="modal" data-target="#myModal">Add Discipline</button>
+             }
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class="active"><a data-toggle="pill" href="#NewJournalSheet">New journal sheet</a></li>
+                        <li><a data-toggle="pill" href="#ShowAllDisciplines">Show all disciplines</a></li>
+                        <li><a data-toggle="pill" href="#AddEditFinalMark">Add/Edit Final Mark</a></li>
+                        <li><a data-toggle="pill" href="#ShowJournalSheet">Show journal sheet</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                    <div class="tab-content">
+                        <div id="NewJournalSheet" class="tab-pane fade in active">
+                            <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                                <label>Group</label>
+                                <select ng-model="model.group" ng-te class="form-control " ng-init="getAllGroups()">
+                                    <option ng-repeat="group in groups" value="{{group.Id}}">
+                                        {{group.Name}}
+                                    </option>
+                                </select>
+                                <label>Discipline</label>
+                                <select ng-model="model.discipline" class="form-control" ng-disabled="!model.group">
+                                    <option ng-repeat="discipline in disciplines" value="{{discipline.Id}}">
+                                        {{discipline.Name}}
+                                    </option>
+                                </select>
+                                <label>Professor</label>
+                                <select ng-model="model.professor" class="form-control" ng-disabled="!model.discipline" ng-init="getAllProfessors()">
+                                    <option ng-repeat="professor in professors" value="{{professor.Id}}">
+                                        {{professor.Account.Name}}&nbsp;{{professor.Account.SerName}}
+                                    </option>
+                                </select>
+                                <label>Semester</label><br />
+                                <input class="form-control" ng-model="model.semester" ng-disabled="!model.professor" /><br />
+                                <button type="button" class="btn btn-group-xs pull-right" data-dismiss="modal" ng-click="createJournalSheet(model.group,model.discipline,model.professor,model.semester)" ng-disabled="!model.semester"><i class="glyphicon glyphicon-save"></i></button>
+                            </div>
+                        </div>
+                        <div id="ShowAllDisciplines" class="tab-pane fade in">
+                            <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                                <div>
+                                    <ul class="nav nav-pills nav-stacked">
+                                        <li ng-repeat="discipline in disciplines" class="list-group" data-toggle="pill">
+                                            <div style="display: inline-block" class="input-group">
+                                                <input type="text" class="form-control" id="nameFaculty" aria-label="..." ng-model="discipline.Name">
+                                                <div class="input-group-btn" id="btnPos">
+                                                    <button class="btn btn-default" ng-click="hideInputAndSaveButtonFunction(discipline.Id,discipline.Name)">
+                                                        <span class="glyphicon glyphicon-edit form-btn"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="AddEditFinalMark" class="tab-pane fade in">
+                            <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                                <label>Group</label>
+                                <select ng-model="model.group" ng-te class="form-control " ng-init="getAllGroups()" ng-change="getAllStudentsFromCurrentGroup(model.group)">
+                                    <option ng-repeat="group in groups" value="{{group.Id}}">
+                                        {{group.Name}}
+                                    </option>
+                                </select>
+                                <table class="table table-condensed">
+                                    <caption>
+                                        <select class="form-control" ng-init="getAllJournalSheets(model.group)" ng-model="journalSheetModelId" ng-change="getFinalMarks(journalSheetModelId)" ng-options="js.JournaSheetId as js.DisciplineName for js in journalSheets"> </select>
+                                    </caption>
+                                    <tr ng-show="showRow">
+
+                                        <th>Name Surname</th>
+                                        <th class="col-sm-3">Final mark</th>
+                                        <th>
+                                        </th>
+                                    </tr>
+                                    <tr ng-show="journalSheetModelId" ng-repeat="student in modelShowJournalSheet.students track by $index">
+                                        <td>{{student.Account.Name}}&nbsp;{{student.Account.SerName}}</td>
+                                        <td>
+                                            <input type="number" min="0" max="100" class="col-sm-3 markInput" ng-model="modelFinalMark[$index].Rating" ng-required="modelFinalMark[$index].Rating" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+
+                                </table>
+                                <input type="submit" class="btn  btn-info pull-left" style="margin-right: 2%" ng-show="journalSheetSaveButton" ng-click="fillFinalMarks(journalSheetModelId,modelFinalMark)"
+                                       value="Save marks" />
+                                <button class="btn  btn-info pull-left" ng-show="journalSheetUpdateButton" ng-click="updateFinalMarks()">
+                                    Update marks
+                                </button>
+                            </div>
+                        </div>
+                        <div id="ShowJournalSheet" class="tab-pane fade in">
+                            <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                                <label>Group</label>
+                                <select ng-model="model.group" ng-te class="form-control " ng-init="getAllGroups()" ng-change="getAllStudentsFromCurrentGroup(model.group)">
+                                    <option ng-repeat="group in groups" value="{{group.Id}}">
+                                        {{group.Name}}
+                                    </option>
+                                </select>
+                                <table class="table table-condensed">
+                                    <caption>
+                                        <label>Discipline</label>
+                                        <select class="form-control " ng-model="journalSheetModel" ng-change="getLessonsFromCurrentJournalSheet(model.group,journalSheetModel)" ng-options="js.JournaSheetId as js.DisciplineName for js in journalSheets"></select>
+                                    </caption>
+                                    <tr ng-show="journalSheetModel">
+                                        <th>Name Surname</th>
+                                        <th ng-repeat="lesson in modelOFStudentModels[0].Lessons" class="col-sm-3">{{lesson.LessonDate | date:'dd.MM.yyyy' }}</th>
+                                        <th class="uk-form">
+                                            <button class="btn small btn-info" ng-show="showPlusButton" ng-click="showDatePicker()"><i class="glyphicon glyphicon-plus"></i></button>
+                                            <input type="text" data-uk-datepicker="{format:'YYYY-MM-DD'}" ng-show="showDatePickers" ng-model="date" class="input-group"/>
+                                            <button class="btn btn-danger small buttonFreeSpace" ng-show="showSaveDate" ng-click="hideShowSaveDateButton()" ><i class="glyphicon glyphicon-trash"></i></button>
+                                            <button class="btn small btn-info buttonFreeSpace" ng-show="showSaveDate" ng-click="saveDate(journalSheetModel,date,model.group)"><i class="glyphicon glyphicon-save"></i></button>
+                                        </th>
+                                    </tr>
+                                    <tr ng-show="journalSheetModel" ng-repeat="student in modelOFStudentModels">
+                                        <td>{{student.Name}}&nbsp;{{student.SurName}}</td>
+                                        <td ng-repeat="lesson in student.Lessons">
+                                            <input type="checkbox" ng-model="lesson.Attending" />
+                                            <input type="number" min="0" max="100" class="col-sm-3 markInput" ng-model="lesson.Mark" />
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                                <button class="btn  btn-info pull-left" ng-show="journalSheetModel" ng-click="fillJournalSheet(journalSheetModel)">
+                                    <i class="glyphicon glyphicon-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Input faculty name</h4>
+                        </div>
+                        <div class="modal-body">
+                            <input ng-model="discipline.Name" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="createDiscipline(discipline)">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (User.IsInRole("Headman"))
+        {
+            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a data-toggle="pill" href="#ShowJournalSheet">Show Journal Sheet</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <div class="tab-content">
+                    <div id="ShowJournalSheet" class="tab-pane fade in active">
+                        <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                            <label>Group</label>
+                            <select ng-model="model.group" class="form-control " ng-init="getAllGroups()" ng-change="getAllStudentsFromCurrentGroup(model.group)">
+                                <option ng-repeat="group in groups" value="{{group.Id}}">
+                                    {{group.Name}}
+                                </option>
+                            </select>
+                            <table class="table table-condensed">
+                                <caption>
+                                    <label>Discipline</label>
+                                    <select class="form-control " ng-model="journalSheetModel" ng-change="getLessonsFromCurrentJournalSheet(model.group,journalSheetModel)" ng-options="js.JournaSheetId as js.DisciplineName for js in journalSheets"></select>
+                                </caption>
+                                <tr ng-show="journalSheetModel">
+                                    <th>Name Surname</th>
+                                    <th ng-repeat="lesson in modelOFStudentModels[0].Lessons" class="col-sm-3">{{lesson.LessonDate | date:'dd.MM.yyyy' }}</th>
+                                    <th class="uk-form">
+                                        <button class="btn small btn-info" ng-show="showPlusButton" ng-click="showDatePicker()"><i class="glyphicon glyphicon-plus"></i></button>
+                                        <input type="text" data-uk-datepicker="{format:'YYYY-MM-DD'}" ng-show="showDatePickers" ng-model="date" class="input-group" />
+                                        <button class="btn btn-danger small buttonFreeSpace" ng-show="showSaveDate" ng-click="hideShowSaveDateButton()"><i class="glyphicon glyphicon-trash"></i></button>
+                                        <button class="btn small btn-info buttonFreeSpace" ng-show="showSaveDate" ng-click="saveDate(journalSheetModel,date,model.group)"><i class="glyphicon glyphicon-save"></i></button>
+                                    </th>
+                                </tr>
+                                <tr ng-show="journalSheetModel" ng-repeat="student in modelOFStudentModels">
+                                    <td>{{student.Name}}&nbsp;{{student.SurName}}</td>
+                                    <td ng-repeat="lesson in student.Lessons">
+                                        <input type="checkbox" ng-model="lesson.Attending"/>
+                                        <input type="number" class="col-sm-3 markInput" ng-model="lesson.Mark" ng-disabled="true" />
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                            <button class="btn  btn-info pull-left" ng-show="journalSheetModel" ng-click="fillJournalSheet(journalSheetModel)">
+                                <i class="glyphicon glyphicon-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (User.IsInRole("Student"))
+        {
+            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a data-toggle="pill" href="#ShowJournalSheet">Show Journal Sheet</a></li>
+                </ul>
+            </div>
+            <div id="ShowJournalSheet" class="tab-pane fade in active">
+                <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                    <label>Group</label>
+                    <select ng-model="model.group" ng-te class="form-control " ng-init="getAllGroups()" ng-change="getAllStudentsFromCurrentGroup(model.group)">
+                        <option ng-repeat="group in groups" value="{{group.Id}}">
+                            {{group.Name}}
+                        </option>
+                    </select>
+                    <table class="table table-condensed">
+                        <caption>
+                            <label>Discipline</label>
+                            <select class="form-control " ng-model="journalSheetModel" ng-change="getLessonsFromCurrentJournalSheet(model.group,journalSheetModel)" ng-options="js.JournaSheetId as js.DisciplineName for js in journalSheets"></select>
+                        </caption>
+                        <tr ng-show="journalSheetModel">
+                            <th>Name Surname</th>
+                            <th ng-repeat="lesson in modelOFStudentModels[0].Lessons" class="col-sm-3">{{lesson.LessonDate | date:'dd.MM.yyyy' }}</th>
+                            <th></th>
+                        </tr>
+                        <tr ng-show="journalSheetModel" ng-repeat="student in modelOFStudentModels">
+                            <td>{{student.Name}}&nbsp;{{student.SurName}}</td>
+                            <td ng-repeat="lesson in student.Lessons">
+                                <input type="checkbox" ng-model="lesson.Attending" ng-disabled="true" />
+                                <input type="number" class="col-sm-3 markInput" ng-model="lesson.Mark" ng-disabled="true" />
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</form>
