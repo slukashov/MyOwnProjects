@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@section Scripts {
+    <environment names="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/signalr/jquery.signalR.js"></script>
+        <script src="~/lib/knockout/dist/knockout.js"></script>
+        <script type="text/javascript" src="~/signalr/hubs"></script>
+        <script>
+            function StreamViewModel() {
+                var self = this;
+                self.messages = ko.observableArray([]);
+                self.addMessage = function (message) {
+                    self.messages.unshift({ message: message });
+                };
+            };
+            var stream = new StreamViewModel();
+            ko.applyBindings(stream);
+
+            $(function () {
+                var chat = $.connection.crawlHub;
+                chat.client.writeStatus = function (message) {
+                    stream.addMessage(message);
+                };
+
+                $.connection.hub.start().done(function () {
+                    $('#btnQuery').click(function () {
+                        chat.server.startCrawl($('#crawlDomain').val());
+                        $('#crawlDomain').val('').focus();
+                    });
+                });
+            });
+        </script>
+    </environment>
+}
+
+<div>
+    <div class="input-group center-block" style="margin: 0 auto; text-align: center;">
+        <span class="input-group-btn" style="margin: 0 auto;text-align: center;padding-left: 33%;padding-top: 2%;padding-bottom: 2%">
+            <input type="text" class="form-control" id="crawlDomain" placeholder="Crawl for..." >
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" id="btnQuery">Go!</button>
+            </span>
+        </span>
+        
+    </div>
+    <div class="well" id="output">
+        <!-- ko foreach: messages -->
+        <p data-bind="text:message"></p>
+        <!-- /ko -->
+    </div>
+</div>
+

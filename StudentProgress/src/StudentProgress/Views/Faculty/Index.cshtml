@@ -1,0 +1,147 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using StudentProgress.Infrastructure.Wrappers
+@using StudentProgress.Authorization.AspNet.Identity.Extensions;
+@using StudentProgress.ViewModels;
+﻿﻿@using System.Threading.Tasks
+
+@inject SignInManegerWrapper SignInManager
+@{
+}
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@section Scripts {
+    <environment names="Development">
+        <script src="~/js/controllers/FacultyController.js"></script>
+        <script src="~/js/services/FacultyService.js"></script>
+        <script src="~/js/services/JournalSheetService.js"></script>
+        <script src="~/js/directives/ngReallyDirective.js"></script>
+    </environment>
+}
+<div style="margin-top: 15px" ng-controller="FacultyController" ng-init="getFaculties()" cg-busy="[getFacultiesPromise]">
+    <toaster-container></toaster-container>
+    @if (User.IsInRole("Administrator"))
+    {
+        <button class="btn btn-info pull-right" data-toggle="modal" data-target="#myModal">Add Faculty</button>
+    }
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+            <ul class="nav nav-pills nav-stacked">
+                @if (User.IsInRole("Administrator"))
+                {
+                    <li class="active"><a data-toggle="pill" href="#NewProfessor">New Professor</a></li>
+                }
+                <li><a data-toggle="pill" href="#Professors">Professors</a></li>
+                <li><a data-toggle="pill" href="#Facultets">Facultets</a></li>
+                <li><a data-toggle="pill" href="#ReassignProfessor" ng-click="getAllProfessors()">Assign Professor</a></li>
+            </ul>
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+            <div class="tab-content">
+                @if (User.IsInRole("Administrator"))
+                {
+                    <div id="NewProfessor" class="tab-pane fade in active">
+                        <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                            <form>
+                                <label>Faculty</label>
+                                <select ng-model="facultet" class="form-control">
+                                    <option ng-repeat="facultet in facultets" value="{{facultet.Id}}">
+                                        {{facultet.Name}}
+                                    </option>
+                                </select>
+                                <label>Name</label>
+                                <input class="form-control" ng-model="professor.Name"/>
+                                <label>Second Name</label>
+                                <input class="form-control" ng-model="professor.Surname"/>
+                                <label>E-mail</label>
+                                <input class="form-control" ng-model="professor.Email"/>
+                                <label>Password</label>
+                                <input class="form-control" type="password" ng-model="professor.Password"/>
+                                <button class="btn btn-info pull-right buttonFreeSpace" ng-click="createProfessor(professor, facultet)">Create Professor</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                <div id="Professors" class="tab-pane fade in">
+                    <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                        <label>Faculty</label>
+                        <select id="Faculties" name="Faculties" class="form-control" ng-options="facultet.Name for facultet in facultets" ng-model="facultet" ng-change="getProfessorFromCurrentFaculty(facultet.Id)"></select>
+                        <ul class="nav nav-pills nav-stacked">
+                            <li ng-repeat="professor in professors">
+                                <a data-toggle="pill">
+                                    {{professor.Account.Name}}&nbsp;{{professor.Account.SerName}}
+                                    <button style="margin-bottom: 10px" class="btn btn-danger btn-sm pull-right" ng-really ng-really-message="Really want to delete professor: {{professor.Account.Name}} {{professor.Account.SerName}}?" ng-really-click="deleteProfessor(professor.Id, facultet.Id)">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </button>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="Facultets" class="tab-pane fade in">
+                    <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                        <div>
+                            <ul class="nav nav-pills nav-stacked">
+                                <li ng-repeat="facultet in facultets" class="list-group" data-toggle="pill">
+                                    <div style="display: inline-block" class="input-group">
+                                        <input type="text" class="form-control" id="nameFaculty" aria-label="..." ng-model="facultet.Name">
+                                        <div class="input-group-btn" id="btnPos">
+                                            <button class="btn btn-default" ng-click="updateFaculty(facultet)">
+                                                <span class="glyphicon glyphicon-edit form-btn"></span>
+                                            </button>
+                                            <button class="btn btn-default " ng-really ng-really-message="Really want to delete {{facultet.Name}}?" ng-really-click="deleteFaculty(facultet.Id)">
+                                                <span class="glyphicon glyphicon-trash form-btn"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="ReassignProfessor" class="tab-pane fade in">
+                    <div class="col-lg-7 col-lg-offset-1 col-md-8 col-md-offset-1 col-sm-12">
+                        <label>Choose faculty</label>
+                        <select ng-model="facultet.Id" class="form-control" >
+                            <option ng-repeat="facultet in facultets" value="{{facultet.Id}}">
+                                {{facultet.Name}}
+                            </option>
+                        </select>
+                        <label>Choose professor</label>
+                        <select ng-model="professor.Id" class="form-control" >
+                            <option ng-repeat="professor in allProfessors" value="{{professor.Id}}" >
+                                {{professor.Account.Name}}
+                            </option>
+                        </select>
+                        <button class="btn  btn-info pull-right" style="margin-top: 3%" ng-click="updateFacultyOnProfessor(facultet.Id,professor.Id)">
+                            Save
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Input faculty name</h4>
+                </div>
+                <div class="modal-body">
+                    <input ng-model="faculty.Name" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="createFaculty(faculty)">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

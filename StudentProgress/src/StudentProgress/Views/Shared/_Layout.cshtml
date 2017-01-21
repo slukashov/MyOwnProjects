@@ -1,0 +1,117 @@
+﻿﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using StudentProgress.Infrastructure.Wrappers
+@using StudentProgress.Authorization.AspNet.Identity.Extensions;
+﻿@using System.Threading.Tasks
+
+@inject SignInManegerWrapper SignInManager
+
+
+<!DOCTYPE html>
+<html ng-app="StudentProgressApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StudentProgress</title>
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.css">
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/lib/AngularJS-Toaster/toaster.css"/>
+        <link rel="stylesheet" href="~/lib/angular-busy/dist/angular-busy.css" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"/>
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
+    </environment>
+
+    @RenderSection("Styles", false)
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="navbar-brand">StudentProgress</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <li><a asp-controller="Group" asp-action="Index">Group</a></li>
+                        <li><a asp-controller="Faculty" asp-action="Index">Faculty</a></li>
+                        <li><a asp-controller="JournalSheet" asp-action="Index">JournalSheet</a></li>
+                        <li><a asp-controller="Home" asp-action="Update">Accounts</a></li>
+                    }
+                    else
+                    {
+                        @if (User.IsInRole("Professor"))
+                        {
+
+                            <li><a asp-controller="Faculty" asp-action="Index">Faculty</a></li>
+                            <li><a asp-controller="JournalSheet" asp-action="Index">JournalSheet</a></li>
+                        }
+                        else
+                        {
+                            @if (User.IsInRole("Headman"))
+                             {
+
+                                 <li><a asp-controller="JournalSheet" asp-action="Index">JournalSheet</a></li>
+                            }
+                            else
+                            {
+                                @if(User.IsInRole("Student"))
+                                {
+                                    <li><a asp-controller="JournalSheet" asp-action="Index">JournalSheet</a></li>
+                                }
+                              
+                            }
+                        }
+                    }
+                </ul>
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; 2016 - StudentProgress</p>
+        </footer>
+    </div>
+
+    <environment names="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/angular/angular.js"></script>
+        <script src="~/lib/AngularJS-Toaster/toaster.js"></script>
+        <script src="~/lib/angular-busy/angular-busy.js"></script>
+        <script src="~/lib/angular-animate/angular-animate.min.js"></script>
+        <script src="~/js/StudentProgressApp.js"></script>
+        <script src="~/js/services/AlertService.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+
+    @RenderSection("Scripts", false)
+</body>
+</html>
