@@ -1,3 +1,6 @@
+using CarOwners.Repositories;
+using Ninject.Modules;
+
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(CarOwners.App_Start.NinjectWebCommon), "Start")]
 [assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(CarOwners.App_Start.NinjectWebCommon), "Stop")]
 
@@ -61,6 +64,7 @@ namespace CarOwners.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            kernel.Load(new RepositoryModule());
         }        
     }
 }

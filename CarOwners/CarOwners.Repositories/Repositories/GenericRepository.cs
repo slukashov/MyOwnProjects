@@ -6,12 +6,12 @@ using CarOwners.Repositories.Repositories.Interfaces;
 
 namespace CarOwners.Repositories.Repositories
 {
-    internal class EfGenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+    internal class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
         private readonly DbContext _context;
         private readonly DbSet<TEntity> _dbSet;
 
-        public EfGenericRepository(DbContext context)
+        public GenericRepository(DbContext context)
         {
             _context = context;
             _dbSet = context.Set<TEntity>();

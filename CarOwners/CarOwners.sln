@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarOwners", "CarOwners\CarOwners.csproj", "{C92A2942-1A82-4695-93F9-CB1E42FF32D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarOwners.WebApplication", "CarOwners\CarOwners.WebApplication.csproj", "{C92A2942-1A82-4695-93F9-CB1E42FF32D2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{563E0451-09D4-4C6F-B6A6-29B8A5AE088F}"
 EndProject

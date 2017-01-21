@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Web;
+using System.Reflection;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Ninject;
 
 namespace CarOwners
 {
@@ -17,5 +19,12 @@ namespace CarOwners
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        //private IContainer CreateNinjectContainer(IEnumerable<AssemblyName> assemblyNames)
+        //{
+        //    IKernel kernel = new StandardKernel();
+        //    kernel.Load(AppDomain.CurrentDomain.GetAssemblies());
+        //}
+
     }
 }

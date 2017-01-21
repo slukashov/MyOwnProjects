@@ -1,10 +1,12 @@
 ﻿using System.Data.Entity;
 using CarOwners.Entities.Entities;
+using Ninject;
 
 namespace CarOwners.Repositories.Contexts
 {
     public class DatabaseContext : DbContext
     {
+        [Inject]
         public DatabaseContext() : base("CarOwnersContext")
         {
         }
