@@ -1,0 +1,35 @@
+﻿akka {
+	actor {
+		provider = "Akka.Cluster.ClusterActorRefProvider, Akka.Cluster"
+		deployment {
+			/tasker {
+				router = consistent-hashing-group
+  routees.paths = ["/user/api"]
+				virtual-nodes-factor = 8
+					cluster {
+						enabled = on
+						max-nr-of-instances-per-node = 2
+						allow-local-routees = off
+						use-role = tracker
+							}
+					}                
+				}
+			}
+						
+	remote {
+		log-remote-lifecycle-events = DEBUG
+		helios.tcp {
+			transport-class = "Akka.Remote.Transport.Helios.HeliosTcpTransport, Akka.Remote"
+			applied-adapters = []
+			transport-protocol = tcp
+			#public-hostname = "STATIC IP MUST BE HERE"
+			hostname = "localhost"
+			port = 0
+					}
+		}            
+
+	cluster {
+		seed-nodes = ["akka.tcp://webcrawler@localhost:4053"]
+		roles = [scheduler]
+		}
+}

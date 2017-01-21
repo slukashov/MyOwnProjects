@@ -1,0 +1,19 @@
+{
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "copyToOutput": [
+      "Tracking.hocon"
+    ]
+  },
+  "dependencies": {
+    "Akka.Cluster": "1.1.1",
+    "BlogSpider.AkkaConfiguration": "1.0.0-*",
+    "BlogSpider.Job": "1.0.0-*",
+    "BlogSpider.Parser": "1.0.0-*",
+    "Topshelf": "4.0.1"
+  },
+  "frameworks": {
+    "net46": {}
+  },
+  "version": "1.0.0-*"
+}
