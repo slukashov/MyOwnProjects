@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "copyToOutput": [
+      "Crawler.hocon"
+    ]
+  },
+
+  "dependencies": {
+    "Akka": "1.1.1",
+    "Akka.Cluster": "1.1.1",
+    "Akka.Remote": "1.1.1",
+    "Akka.Serialization.Wire": "1.1.0.26-beta",
+    "BlogSpider.AkkaConfiguration": "1.0.0-*",
+    "BlogSpider.Parser": "1.0.0-*",
+    "Topshelf": "4.0.1"
+  },
+
+  "frameworks": {
+    "net46": { }
+  }
+}

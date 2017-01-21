@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Akka": "1.1.1",
+    "Akka.Cluster": "1.1.1",
+    "NETStandard.Library": "1.6.0"
+  },
+
+  "frameworks": {
+    "net46": {}
+  }
+}

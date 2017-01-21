@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "copyToOutput": [
+      "Lighthouse.hocon"
+    ]
+  },
+
+  "dependencies": {
+    "Akka.Cluster": "1.1.1",
+    "Akka.Logger.NLog": "1.1.1",
+    "BlogSpider.AkkaConfiguration": "1.0.0-*",
+    "Microsoft.Extensions.Configuration": "1.0.0",
+    "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
+    "Topshelf": "4.0.1",
+    "Topshelf.NLog": "4.0.1"
+  },
+
+  "frameworks": {
+    "net46": {}
+  }
+}
