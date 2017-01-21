@@ -1,0 +1,69 @@
+﻿@section Scripts {
+    <environment names="Development">
+        <script src="~/js/controllers/AccountController.js"></script>
+        <script src="~/js/services/AccountService.js"></script>
+    </environment>
+}
+<div style="margin-top: 15px" ng-controller="AccountController">
+    <toaster-container></toaster-container>
+    <div class="row" data-ng-init="getAccounts()">
+        <div class="col-md-3 col-lg-3" style="width: 250px; height: 500px ;overflow: scroll;">
+            <div class="row">
+                <div style="margin-top: 5px">
+                    <div class="list-group">
+                        <button ng-repeat="account in accounts" ng-click="selectAccount(account)" class="list-group-item">
+                            <span>{{ account.Email }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9 col-lg-9">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#info"> </a></li>
+            </ul>
+            <div class="tab-content" ng-model="account">
+                <div id="info" class="tab-pane fade in active">
+                    <div class="panel">
+                        <table class="table table">
+                            <tbody>
+                                <tr>
+                                    <th>Email </th>
+                                    <td><span class="pull-right">{{ account.Email }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <td><input ng-disabled="isInputsDisabled" type="text" class="form-control editInput pull-right input-sm" ng-model="account.Name" required /></td>
+                                </tr>
+                                <tr>
+                                    <th>Surname</th>
+                                    <td><input ng-disabled="isInputsDisabled" type="text" class="form-control editInput pull-right input-sm" ng-model="account.SerName" required /></td>
+                                </tr>
+                                <tr>
+                                    <th>Password</th>
+                                    <td>
+                                        <input ng-disabled="isPasswordDisabled" type="password" class="form-control editInput pull-right input-sm" ng-model="account.Password" />
+                                        <button ng-show="showPassword" ng-click="showInputs()" class="btn btn btn-success btn-sm pull-right">
+                                            Change
+                                        </button>
+                                        <button ng-show="savePasswordButton" ng-click="saveNewPass(OldPassword, NewPassword)" class="btn btn btn-success btn-sm pull-right">
+                                            Save
+                                        </button>
+                                    </td>
+                                    <td><input ng-show="oldPasswordAccount" type="password" class="form-control editInput pull-right input-sm" placeholder="Old Password" ng-model="OldPassword" required /></td>
+                                    <td><input ng-show="oldPasswordAccount" type="password" class="form-control editInput pull-right input-sm" placeholder="New Password" ng-model="NewPassword" required /></td>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button ng-show="showSave" ng-click="saveAccount(account)" class="btn btn-default pull-right" id="saveUserButton">
+                        <span class="text"> </span>&nbsp;&nbsp;<span class="glyphicon glyphicon-save"></span>
+                    </button>
+                    <button ng-show="showEdit" ng-click="edit()" class="btn btn-default pull-right" id="editUserButton">
+                        <span class="text"> </span>&nbsp;&nbsp;<span class="glyphicon glyphicon-edit"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
