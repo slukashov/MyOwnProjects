@@ -24,22 +24,13 @@ namespace CarOwners.Controllers
 
         public ActionResult About()
         {
-            _carRepository.Create(new Car
-            {
-                CarType = CarType.Passanger,
-                Id = Guid.NewGuid(),
-                IssueYear = DateTime.Today,
-                Mark = "1",
-                Model = "2"
-            });
-            ViewBag.Message = "Your application description page.";
+           
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
 
             return View();
         }

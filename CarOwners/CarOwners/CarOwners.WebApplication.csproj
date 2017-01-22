@@ -194,6 +194,11 @@
     <Content Include="Scripts\angular-touch.min.js" />
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
+    <Content Include="Scripts\Controllers\carController.js" />
+    <Content Include="Scripts\carOwnersAndTheirsCars.js" />
+    <Content Include="Scripts\Controllers\carOwnersController.js" />
+    <Content Include="Scripts\Services\carOwnersService.js" />
+    <Content Include="Scripts\Services\carService.js" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular.min.js.map" />
     <Content Include="Scripts\angular-touch.min.js.map" />

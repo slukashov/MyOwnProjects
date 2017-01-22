@@ -14,7 +14,6 @@ namespace CarOwners.Entities.Entities
         public CarType CarType { set; get; }
         public decimal Price { get; set; }
         public DateTime IssueYear { get; set; }
-        public float DrivingExperience { get; set; }
 
         public virtual ICollection<CarOwner> Owners { get; set; }
     }

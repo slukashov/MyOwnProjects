@@ -22,6 +22,16 @@ namespace CarOwners
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/angular").Include(
+                      "~/Scripts/angular.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/carOwnersAndTheirsCars")
+                .Include("~/Scripts/carOwnersAndTheirsCars.js")
+    .Include("~/Scripts/Controllers/carController.js")
+    .Include("~/Scripts/Controllers/carOwnersController.js")
+    .Include("~/Scripts/Services/carService.js")
+    .Include("~/Scripts/Services/carOwnersService.js"));
         }
     }
 }
